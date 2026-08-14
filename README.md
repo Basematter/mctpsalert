@@ -14,4 +14,4 @@
 - 若回显 `webhook 推送失败` → 检查 AstrBot 插件是否运行、`webhookUrl` 地址是否正确
 
 如果你不想编译/部署 Java mod，可以让 AstrBot 插件直接用 RCON 每 15 分钟跑一次 `spark tps` 并解析。
-**零 Java 代码**，代价：服务器需开启 RCON（`server.properties` 设 `enable-rcon=true`、`rcon.password=...`，端口默认 `25575`）、
+**零 Java 代码**，代价：服务器需开启 RCON（`server.properties` 设 `enable-rcon=true`、`rcon.password=...`，端口默认 `25575`）
