@@ -94,12 +94,13 @@ cd mctpsalert
 
 ## 六、webhook 数据格式（供二次开发）
 
-`event` 字段区分两种事件：
+`event` 字段区分三种事件：
 
 | event | 含义 | 插件行为 |
 | --- | --- | --- |
 | `tps_low` | TPS 低于阈值（告警） | 向目标 QQ 群推送告警 |
 | `tps_test` | `/mctps test` 连通测试 | 向目标 QQ 群推送测试消息 |
+| `tps_sample` | 每次定时采样（默认每 3 分钟） | 写入 SQLite 历史（含在线人数，`data/plugins/astrbot_plugin_mctps_alert/tps_history.db`），供图表函数工具使用，不发群消息 |
 
 ```json
 {
@@ -108,15 +109,31 @@ cd mctpsalert
   "source": "spark",
   "tps": 17.2,
   "threshold": 18,
+  "playerCount": 12,
   "timestamp": 1760000000,
   "windows": { "tps5s": 17.2, "tps10s": 17.5, "tps1m": 18.2, "tps5m": 19.0, "tps15m": 19.5 },
   "dimensions": { "*": [17.2, 17.5, 18.2, 19.0, 19.5], "overworld": [...], "the_nether": [...] }
 }
 ```
 
+## 七、LLM 函数工具：发送 TPS 面积图
+
+插件注册了函数工具 **`send_tps_chart`**（FunctionTool，AstrBot Agent 体系）。在接入 LLM 的 QQ 群里，
+机器人会根据用户意图（如"发一下 TPS 折线图"、"最近服务器性能怎么样"）自动调用该工具：
+
+- 从 SQLite 读取 TPS 历史（参数 `count` 可只取最近 N 次，10~500；**不传则显示从首次采样到现在的全部历史**）
+- 用 matplotlib 生成**面积图** PNG：
+  - TPS 以蓝色面积图呈现（左 Y 轴固定 0–20、告警阈值虚线、中文字体自适应）
+  - **在线人数**以橙色折线叠加在右侧第二 Y 轴（`twinx`，固定 0–8 人）
+  - X 轴刻度从首次采样时间到现在，格式按跨度自适应（≤1 天 `HH:MM:SS`，≤60 天 `MM-DD HH:MM`，更长 `YYYY-MM-DD`）
+  - 仅保留下（bottom）与左（left）两条边框线，去掉上/右线避免与其他元素重叠
+- 通过 OneBot v11 将图片发送到**当前会话**
+
+工具说明：`生成并发送 MC 服务器最近 TPS 折线图（含在线人数）图片到当前会话。`
+
 ---
 
-## 不用 mod，AstrBot 直接走 RCON
+## 附录 · 方案 B：不用 mod，AstrBot 直接走 RCON
 
 如果你不想编译/部署 Java mod，可以让 AstrBot 插件直接用 RCON 每 15 分钟跑一次 `spark tps` 并解析。
 **零 Java 代码**，代价：服务器需开启 RCON（`server.properties` 设 `enable-rcon=true`、`rcon.password=...`，端口默认 `25575`）、

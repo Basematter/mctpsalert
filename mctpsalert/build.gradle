@@ -40,3 +40,8 @@ tasks.named('jar') {
         ])
     }
 }
+
+dependencies {
+    // spark 为可选运行依赖，这里仅编译期引用其公共 API（me.lucko.spark.api）
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+}

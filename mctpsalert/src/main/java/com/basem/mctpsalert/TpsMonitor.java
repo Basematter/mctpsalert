@@ -3,6 +3,10 @@ package com.basem.mctpsalert;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import me.lucko.spark.api.Spark;
+import me.lucko.spark.api.SparkProvider;
+import me.lucko.spark.api.statistic.StatisticWindow;
+import me.lucko.spark.api.statistic.types.DoubleStatistic;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -97,6 +101,9 @@ public class TpsMonitor {
         LOGGER.info("[mctpsalert] 采样完成 source={} tps5s={} threshold={}",
                 snap.source, String.format("%.2f", snap.tps), threshold);
 
+        // 每次采样都推送 tps_sample 事件给插件，用于累积 TPS 历史（折线图等）
+        pushSample(snap);
+
         if (snap.tps < threshold) {
             if (!alerted && cooldownOk()) {
                 alerted = true;
@@ -106,6 +113,17 @@ public class TpsMonitor {
         } else if (snap.tps >= recovery) {
             alerted = false;
         }
+    }
+
+    /** 推送一次采样记录（tps_sample）到插件，用于累积 TPS 历史 */
+    private static void pushSample(TpsSnapshot snap) {
+        String url = Config.WEBHOOK_URL.get();
+        if (url.isEmpty()) {
+            return;
+        }
+        String payload = buildPayload(snap, Config.SERVER_NAME.get(), "tps_sample");
+        int timeoutSec = Config.WEBHOOK_TIMEOUT_SECONDS.get();
+        HTTP_EXECUTOR.submit(() -> postWebhook(url, payload, timeoutSec));
     }
 
     private static boolean cooldownOk() {
@@ -164,18 +182,49 @@ public class TpsMonitor {
     private static TpsSnapshot sampleTps(MinecraftServer server) {
         boolean sparkLoaded = ModList.get().isLoaded("spark");
         if (sparkLoaded) {
+            // 优先用 spark 官方 API 获取整体 TPS（5s 档），稳定且不依赖命令输出解析
+            Double apiTps = sparkApiTps5s();
+            if (apiTps != null) {
+                return new TpsSnapshot(apiTps, null, "spark", server.getPlayerCount());
+            }
+            // 兜底：执行 spark tps 命令并解析输出（兼容 API 不可用/旧版本）
             List<String> lines = runCommandCapture(server, "spark tps");
             SparkTps spark = SparkTps.parse(lines);
             if (spark != null) {
-                return new TpsSnapshot(spark.overall5s, spark.rows, "spark");
+                return new TpsSnapshot(spark.overall5s, spark.rows, "spark", server.getPlayerCount());
             }
-            LOGGER.warn("[mctpsalert] spark 已安装但解析输出失败，捕获到的原始输出: {}", lines);
+            LOGGER.warn("[mctpsalert] spark 已安装但 API 与命令解析均失败，捕获到的原始输出: {}", lines);
         }
         if (Config.NATIVE_FALLBACK.get()) {
             return nativeTps(server);
         }
         LOGGER.warn("[mctpsalert] 未安装 spark 且 nativeFallback 关闭，跳过本次采样");
         return null;
+    }
+
+    /**
+     * 通过 spark 官方 API 获取整体 TPS（5s 档）。
+     * 直接引用 spark 公共 API 类型（compileOnly 依赖，运行期由 spark mod 提供）。
+     *
+     * @return 5s 档 TPS；spark 未安装 / API 调用失败 / 数值无效时返回 null
+     */
+    @Nullable
+    private static Double sparkApiTps5s() {
+        try {
+            Spark spark = SparkProvider.get();
+            if (spark == null) {
+                return null;
+            }
+            DoubleStatistic<StatisticWindow.TicksPerSecond> tps = spark.tps();
+            if (tps == null) {
+                return null;
+            }
+            double value = tps.poll(StatisticWindow.TicksPerSecond.SECONDS_5);
+            return value > 0 ? value : null;
+        } catch (Throwable e) {
+            LOGGER.warn("[mctpsalert] spark API 获取 TPS 失败: {}", e.toString());
+            return null;
+        }
     }
 
     /** 在服务端主线程执行命令并捕获全部输出行 */
@@ -234,7 +283,7 @@ public class TpsMonitor {
         }
         double avgNs = sum / times.length;
         double tps = Math.min(1_000_000_000.0 / avgNs, 20.0);
-        return new TpsSnapshot(tps, null, "native");
+        return new TpsSnapshot(tps, null, "native", server.getPlayerCount());
     }
 
     // ---------- 告警推送 ----------
@@ -259,6 +308,7 @@ public class TpsMonitor {
         root.addProperty("serverName", serverName);
         root.addProperty("source", snap.source);
         root.addProperty("tps", snap.tps);
+        root.addProperty("playerCount", snap.playerCount);
         root.addProperty("threshold", Config.ALERT_THRESHOLD.get());
         root.addProperty("timestamp", System.currentTimeMillis() / 1000);
 
@@ -360,6 +410,6 @@ public class TpsMonitor {
         }
     }
 
-    private record TpsSnapshot(double tps, Map<String, double[]> rows, String source) {
+    private record TpsSnapshot(double tps, Map<String, double[]> rows, String source, int playerCount) {
     }
 }
