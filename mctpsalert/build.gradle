@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.73'
+}
+
+base {
+    archivesName = 'mctpsalert'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+neoForge {
+    version = '21.1.140'
+
+    runs {
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+        }
+        server {
+            server()
+        }
+    }
+
+    mods {
+        mctpsalert {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes([
+            'Implementation-Title'   : 'mctpsalert',
+            'Implementation-Version' : project.version,
+        ])
+    }
+}

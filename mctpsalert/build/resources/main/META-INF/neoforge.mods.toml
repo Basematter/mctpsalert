@@ -1,0 +1,24 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = ""
+
+[[mods]]
+modId = "mctpsalert"
+version = "1.0.0"
+displayName = "MC TPS Alert"
+description = '''每 15 分钟获取服务器 TPS（优先执行 spark tps 解析，自动回退原生读取），
+低于阈值时通过 webhook 推送给 AstrBot 插件，由 OneBot v11 在指定 QQ 群发送提醒。'''
+authors = "Basem"
+
+[[dependencies.mctpsalert]]
+modId = "neoforge"
+versionRange = "[21.1.0,)"
+mandatory = true
+type = "required"
+
+[[dependencies.mctpsalert]]
+modId = "spark"
+versionRange = "[1.10,)"
+mandatory = false
+type = "optional"

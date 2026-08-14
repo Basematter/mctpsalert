@@ -1,0 +1,44 @@
+{
+  "server_host": {
+    "description": "webhook 监听地址",
+    "type": "string",
+    "default": "127.0.0.1",
+    "hint": "MC 服务器与 AstrBot 同机填 127.0.0.1；跨机访问填 0.0.0.0"
+  },
+  "server_port": {
+    "description": "webhook 监听端口",
+    "type": "int",
+    "default": 8080,
+    "hint": "需与 mod 配置中的 webhookUrl 保持一致"
+  },
+  "api_token": {
+    "description": "访问令牌（Bearer Token）",
+    "type": "string",
+    "default": "",
+    "hint": "留空则不校验；建议设置，并在 mod 侧配合使用"
+  },
+  "platform_id": {
+    "description": "消息平台适配器类型名",
+    "type": "string",
+    "default": "aiocqhttp",
+    "hint": "OneBot v11 适配器为 aiocqhttp。插件会自动查找该类型的平台实例并取其实例 ID 发送，无需手动填写实例 ID"
+  },
+  "target_groups": {
+    "description": "目标 QQ 群号列表",
+    "type": "list",
+    "default": [],
+    "hint": "要接收告警的 QQ 群号，每行一个，仅数字"
+  },
+  "message_prefix": {
+    "description": "消息前缀",
+    "type": "string",
+    "default": "",
+    "hint": "附加在告警消息前的文本，留空则不添加"
+  },
+  "message_suffix": {
+    "description": "消息后缀",
+    "type": "string",
+    "default": "",
+    "hint": "附加在告警消息后的文本，留空则不添加"
+  }
+}

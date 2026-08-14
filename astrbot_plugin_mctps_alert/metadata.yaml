@@ -1,0 +1,6 @@
+name: astrbot_plugin_mctps_alert
+display_name: MC TPS 低值提醒
+desc: 接收 MC 服务器 mctpsalert mod 推送的 TPS 告警 webhook，并发送到指定 QQ 群（OneBot v11）
+version: v1.0.0
+author: Basem
+repo: https://github.com/yourname/astrbot_plugin_mctps_alert

@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - mctpsalert",
+        "order": 0
+      },
+      "projectName": "mctpsalert",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\Basem\\Documents\\trae_projects\\rcon\\mctpsalert\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\Basem\\Documents\\trae_projects\\rcon\\mctpsalert\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dmctpsalert%%C:\\Users\\Basem\\Documents\\trae_projects\\rcon\\mctpsalert\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}
