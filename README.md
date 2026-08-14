@@ -1,5 +1,6 @@
 # mctpsalert — MC TPS 低值提醒（NeoForge 1.21.1 + AstrBot + OneBot v11）
 
+> 仓库：`https://github.com/Basematter/mctpsalert`
 > 开源协议：[GPL-3.0](LICENSE)
 
 | 指令 | 作用 |

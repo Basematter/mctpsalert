@@ -1,5 +1,7 @@
 # mctpsalert v1.1.0 发布说明
 
+> 仓库：[github.com/Basematter/mctpsalert](https://github.com/Basematter/mctpsalert)
+
 MC 服务器 TPS 低值告警系统：NeoForge 1.21.1 服务端 mod 定时采样 TPS，低于阈值时经 HTTP webhook 推送给 AstrBot 插件，由 AstrBot 通过 OneBot v11 向指定 QQ 群发送告警；插件同时注册 LLM 函数工具，可在群里直接生成并发送 TPS 折线图。
 
 ## v1.1.0 更新内容
