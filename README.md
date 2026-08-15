@@ -2,6 +2,8 @@
 
 > 开源协议：[GPL-3.0](LICENSE)
 
+A.
+
 | 指令 | 作用 |
 |---|---|
 | `/mctps status` | 显示当前配置与运行状态：检查间隔、告警/恢复阈值、webhook 地址、spark 是否安装、玩家加入提示开关 |
@@ -12,6 +14,9 @@
 - 回显 `测试 webhook 推送成功` 且目标群收到 `[mctpsalert 连通测试]` 消息 → mod → AstrBot → QQ 链路正常
 - 若回显 `webhook 推送失败` → 检查 AstrBot 插件是否运行、`webhookUrl` 地址是否正确
 
-如果你不想编译/部署 Java mod，可以让 AstrBot 插件直接用 RCON 每 15 分钟跑一次 `spark tps` 并解析。
+B.
+可以让 AstrBot 插件直接用 RCON 每 15 分钟检测tps并解析。
+
+`spark tps`
 
 需要服务器开启 RCON
