@@ -1,6 +1,5 @@
 # mctpsalert — MC TPS 低值提醒（NeoForge 1.21.1 + AstrBot + OneBot v11）
 
-> 仓库：`https://github.com/Basematter/mctpsalert`
 > 开源协议：[GPL-3.0](LICENSE)
 
 | 指令 | 作用 |
@@ -14,4 +13,4 @@
 - 若回显 `webhook 推送失败` → 检查 AstrBot 插件是否运行、`webhookUrl` 地址是否正确
 
 如果你不想编译/部署 Java mod，可以让 AstrBot 插件直接用 RCON 每 15 分钟跑一次 `spark tps` 并解析。
-**零 Java 代码**，代价：服务器需开启 RCON（`server.properties` 设 `enable-rcon=true`、`rcon.password=...`，端口默认 `25575`）
+需要服务器开启 RCON
