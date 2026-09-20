@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+build/
+
+# ForgeGradle dev run directory
+run/
+run-data/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.eclipse/
+.settings/
+.classpath
+.project
+.vscode/

@@ -1,0 +1,15 @@
+# Normalize line endings on commit; check out native endings except where noted.
+* text=auto
+
+# The Gradle wrapper shell script must keep LF or it breaks on Linux/macOS.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Windows batch files want CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets must never be line-ending converted.
+*.jar binary
+*.png binary
+*.ogg binary

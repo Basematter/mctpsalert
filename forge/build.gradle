@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain {
+        // Minecraft 1.20.1 targets Java 17.
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', ''
+            property 'forge.logging.console.level', 'info'
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            args '--nogui'
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = 'MinecraftForge'
+        url = 'https://maven.minecraftforge.net/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    // spark is an optional runtime dependency; only its public API (me.lucko.spark.api) is referenced at compile time.
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+// Sources contain UTF-8 Chinese comments. javac would otherwise default to the platform
+// charset (GBK on zh-CN Windows) and mangle every non-ASCII literal.
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+            'Implementation-Title'  : mod_id,
+            'Implementation-Version': project.version,
+        ])
+    }
+}
